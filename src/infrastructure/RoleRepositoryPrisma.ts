@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { IRoleRepository } from "../domain/repository/IRoleRepository";
 import { Role } from "domain/entity/roles.entity";
-import { UserRole } from "domain/entity/userRole.entity";
+import { UsuariosRoles } from "domain/entity/usuarios-roles.entity";
 
 const prisma = new PrismaClient();
 
@@ -95,10 +95,10 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param data Los datos que contienen el ID del usuario y el ID del rol a asignar.
    * @returns El registro de la relación entre el usuario y el rol.
    */
-  async assignRoleToUser(data: UserRole): Promise<UserRole> {
-    return await prisma.userRoles.create({
+  async assignRoleToUser(data: UsuariosRoles): Promise<UsuariosRoles> {
+    return await prisma.UsuariosRoless.create({
       data: {
-        userId: data.userId,
+        userId: data.usuarioId,
         roleId: data.roleId,
       },
     });
@@ -110,11 +110,11 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param data Los datos que contienen el ID del usuario y el ID del rol a eliminar.
    * @returns Una promesa que se resuelve cuando el rol se elimina.
    */
-  async removeRoleFromUser(data: UserRole): Promise<void> {
-    await prisma.userRoles.delete({
+  async removeRoleFromUser(data: UsuariosRoles): Promise<void> {
+    await prisma.UsuariosRoless.delete({
       where: {
         userId_roleId: {
-          userId: data.userId,
+          userId: data.usuarioId,
           roleId: data.roleId,
         },
       },
@@ -128,14 +128,14 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @returns Una lista de roles asignados al usuario.
    */
   async findRolesByUserId(userId: string): Promise<Role[]> {
-    const userRoles = await prisma.userRoles.findMany({
+    const UsuariosRoless = await prisma.UsuariosRoless.findMany({
       where: { userId },
       include: {
         role: true,
       },
     });
 
-    return userRoles.map((r) => r.role);
+    return UsuariosRoless.map((r) => r.role);
   }
 
   /**
@@ -145,12 +145,12 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param roleId El ID del rol a verificar.
    * @returns El registro de la relación de usuario y rol, o `null` si no existe.
    */
-  async findRolesByIds(userId: string, roleId: string): Promise<UserRole> {
-    const userRoles = await prisma.userRoles.findUnique({
+  async findRolesByIds(userId: string, roleId: string): Promise<UsuariosRoles> {
+    const UsuariosRoless = await prisma.UsuariosRoless.findUnique({
       where: { userId_roleId: { userId, roleId } },
     });
 
-    return userRoles;
+    return UsuariosRoless;
   }
 
   /**
@@ -160,13 +160,13 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @returns Una lista de los nombres de los roles asignados al usuario.
    */
   async findRoleNamesByUserId(userId: string): Promise<string[]> {
-    const userRoles = await prisma.userRoles.findMany({
+    const UsuariosRoless = await prisma.UsuariosRoless.findMany({
       where: { userId },
       include: {
         role: true,
       },
     });
 
-    return userRoles.map((r) => r.role.name);
+    return UsuariosRoless.map((r) => r.role.name);
   }
 }
