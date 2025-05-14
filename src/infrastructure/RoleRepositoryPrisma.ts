@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { IRoleRepository } from "../domain/IRoleRepository";
-import { Role } from "domain/roles.entity";
-import { UserRole } from "domain/userRole.entity";
+import { IRoleRepository } from "../domain/repository/IRoleRepository";
+import { Role } from "domain/entity/roles.entity";
+import { UserRole } from "domain/entity/userRole.entity";
 
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
-import { UserRole } from "domain/userRole.entity";
-import { Role } from "@prisma/client";
+import { UserRole } from "./userRole.entity";
+import { Role } from "./roles.entity";
 
 export interface IRoleRepository {
   create(data: Partial<Role>): Promise<Role>;

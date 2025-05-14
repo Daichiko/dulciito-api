@@ -1,5 +1,5 @@
-import { IUserRepository } from "../domain/IUserRepository";
-import { User, UserWithoutPassword } from "domain/user.entity";
+import { IUserRepository } from "../domain/repository/IUserRepository";
+import { User, UserWithoutPassword } from "domain/entity/user.entity";
 import { prisma } from "../shared/config/connectionDB";
 
 export class UserRepositoryPrisma implements IUserRepository {
