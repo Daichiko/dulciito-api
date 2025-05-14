@@ -1,5 +1,5 @@
-import { UserRole } from "./userRole.entity";
-import { Role } from "./roles.entity";
+import { UsuariosRoles } from "../entity/usuarios-roles.entity";
+import { Role } from "../entity/roles.entity";
 
 export interface IRoleRepository {
   create(data: Partial<Role>): Promise<Role>;
@@ -14,9 +14,9 @@ export interface IRoleRepository {
     data: Role[];
     count: number;
   }>;
-  assignRoleToUser(data: UserRole): Promise<UserRole>;
-  removeRoleFromUser(data: UserRole): Promise<void>;
-  findRolesByUserId(userId: string): Promise<Role[]>;
-  findRolesByIds(userId: string, roleId: string): Promise<UserRole>;
-  findRoleNamesByUserId(userId: string): Promise<string[]>;
+  assignRoleToUser(data: UsuariosRoles): Promise<UsuariosRoles>;
+  removeRoleFromUser(data: UsuariosRoles): Promise<void>;
+  findRolesByUsuarioId(userId: string): Promise<Role[]>;
+  findRolesByIds(userId: string, roleId: string): Promise<UsuariosRoles>;
+  findRoleNamesByUsuarioId(userId: string): Promise<string[]>;
 }

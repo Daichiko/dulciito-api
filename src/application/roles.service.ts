@@ -1,8 +1,9 @@
-import { IRoleRepository } from "../domain/IRoleRepository";
-import { CreateRoleDto, AssignRoleToUserDto } from "../shared/dtos/roleDto";
+import { IRoleRepository } from "../domain/repository/IRoleRepository";
+import { CreateRoleDto } from "../shared/dtos/roles.dto";
+import { CreateUsuarioRolDto } from "../shared/dtos/usuarios-roles.dto";
 import { validateDto } from "../shared/utils/validateDto";
 import { ApiError } from "../shared/errors/apiError";
-import { IUserRepository } from "domain/IUserRepository";
+import { IUserRepository } from "domain/repository/IUserRepository";
 
 export class RoleService {
   /**
@@ -86,10 +87,10 @@ export class RoleService {
    * @returns El registro de asignación de rol.
    * @throws ApiError Si el rol o el usuario no existen o si el rol ya está asignado.
    */
-  async assignRoleToUser(dto: AssignRoleToUserDto) {
-    const dtoValidated = await validateDto(AssignRoleToUserDto, dto);
+  async assignRoleToUser(dto: CreateUsuarioRolDto) {
+    const dtoValidated = await validateDto(CreateUsuarioRolDto, dto);
 
-    await this.usuarioExiste(dtoValidated.userId);
+    await this.usuarioExiste(dtoValidated.usuarioId);
 
     const roleExists = await this.roleRepository.findById(dtoValidated.roleId);
     if (!roleExists) {
@@ -97,7 +98,7 @@ export class RoleService {
     }
 
     const userRoles = await this.roleRepository.findRolesByIds(
-      dtoValidated.userId,
+      dtoValidated.usuarioId,
       dtoValidated.roleId
     );
 
@@ -114,10 +115,10 @@ export class RoleService {
    * @param dto Los datos para eliminar la asignación de rol de un usuario.
    * @returns Una promesa que se resuelve cuando el rol se elimina del usuario.
    */
-  async removeRoleFromUser(dto: AssignRoleToUserDto) {
-    const dtoValidated = await validateDto(AssignRoleToUserDto, dto);
+  async removeRoleFromUser(dto: CreateUsuarioRolDto) {
+    const dtoValidated = await validateDto(CreateUsuarioRolDto, dto);
 
-    await this.usuarioExiste(dtoValidated.userId);
+    await this.usuarioExiste(dtoValidated.usuarioId);
 
     return this.roleRepository.removeRoleFromUser(dtoValidated);
   }
@@ -125,24 +126,24 @@ export class RoleService {
   /**
    * Obtiene todos los roles asignados a un usuario.
    *
-   * @param userId El ID del usuario para obtener sus roles.
+   * @param usuarioId El ID del usuario para obtener sus roles.
    * @returns Una lista de roles asignados al usuario.
    */
-  async findRolesByUser(userId: string) {
-    await this.usuarioExiste(userId);
+  async findRolesByUser(usuarioId: string) {
+    await this.usuarioExiste(usuarioId);
 
-    return this.roleRepository.findRolesByUserId(userId);
+    return this.roleRepository.findRolesByUsuarioId(usuarioId);
   }
 
   /**
    * Verifica si un usuario existe por su ID.
    *
-   * @param userId El ID del usuario a verificar.
+   * @param usuarioId El ID del usuario a verificar.
    * @throws ApiError Si el usuario no existe.
    * @private
    */
-  private async usuarioExiste(userId: string) {
-    const user = await this.userRepository.findById(userId);
+  private async usuarioExiste(usuarioId: string) {
+    const user = await this.userRepository.findById(usuarioId);
 
     if (!user) {
       throw new ApiError("El usuario no existe", 404, []);

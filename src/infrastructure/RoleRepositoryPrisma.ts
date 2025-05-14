@@ -127,7 +127,7 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param userId El ID del usuario para consultar sus roles.
    * @returns Una lista de roles asignados al usuario.
    */
-  async findRolesByUserId(userId: string): Promise<Role[]> {
+  async findRolesByUsuarioId(userId: string): Promise<Role[]> {
     const UsuariosRoless = await prisma.UsuariosRoless.findMany({
       where: { userId },
       include: {
@@ -159,7 +159,7 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param userId El ID del usuario para consultar los nombres de sus roles.
    * @returns Una lista de los nombres de los roles asignados al usuario.
    */
-  async findRoleNamesByUserId(userId: string): Promise<string[]> {
+  async findRoleNamesByUsuarioId(userId: string): Promise<string[]> {
     const UsuariosRoless = await prisma.UsuariosRoless.findMany({
       where: { userId },
       include: {

@@ -1,10 +1,10 @@
-import { IUserRepository } from "../domain/IUserRepository";
+import { IUserRepository } from "../domain/repository/IUserRepository";
 import {
-  CreateUserDto,
-  UpdateUserDto,
-  loginDto,
-  changePasswordDto,
-} from "../shared/dtos/userDto";
+  CreateUsuarioDto,
+  UpdateUsuarioDto,
+  LoginDto,
+  ChangePasswordDto,
+} from "../shared/dtos/usuario.dto";
 import { validateDto } from "../shared/utils/validateDto";
 import { ApiError } from "../shared/errors/apiError";
 import bcrypt from "bcrypt";
@@ -25,8 +25,8 @@ export class UserService {
    * @returns El usuario creado.
    * @throws ApiError Si el correo electrónico ya está registrado.
    */
-  async create(dto: CreateUserDto) {
-    const dtoValidate = await validateDto(CreateUserDto, dto);
+  async create(dto: CreateUsuarioDto) {
+    const dtoValidate = await validateDto(CreateUsuarioDto, dto);
 
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
@@ -35,7 +35,7 @@ export class UserService {
 
     const encriptarPassword = bcrypt.hashSync(dtoValidate.password, 10);
 
-    const sanitizedData: CreateUserDto = {
+    const sanitizedData: CreateUsuarioDto = {
       ...dtoValidate,
       password: encriptarPassword,
       email: dtoValidate.email.toLowerCase().trim(),
@@ -86,8 +86,8 @@ export class UserService {
    * @returns El usuario actualizado.
    * @throws ApiError Si el usuario no existe o si el correo electrónico ya está en uso.
    */
-  async update(id: string, dto: UpdateUserDto) {
-    const dtoValidate = await validateDto(UpdateUserDto, dto);
+  async update(id: string, dto: UpdateUsuarioDto) {
+    const dtoValidate = await validateDto(UpdateUsuarioDto, dto);
 
     const existingUser = await this.userRepository.findById(id);
     if (!existingUser) {
@@ -120,8 +120,8 @@ export class UserService {
    * @returns Un objeto con el token JWT y el mensaje de éxito.
    * @throws ApiError Si el correo no está registrado o si la contraseña es incorrecta.
    */
-  async login(dto: loginDto) {
-    const dtoValidate = await validateDto(loginDto, dto);
+  async login(dto: LoginDto) {
+    const dtoValidate = await validateDto(LoginDto, dto);
     const user = await this.userRepository.findByEmail(dtoValidate.email);
 
     if (!user) {
@@ -137,7 +137,7 @@ export class UserService {
       throw new ApiError("Contraseña incorrecta", 400, []);
     }
 
-    const roles = user["UserRoles"].map((r) => r.role.name);
+    const roles = user.UserRoles.map((r) => r.Roles.name);
 
     const token: any = jwt.sign({
       id: user.id,
@@ -166,8 +166,8 @@ export class UserService {
    * @returns Un objeto con el mensaje de éxito.
    * @throws ApiError Si el usuario no existe.
    */
-  async changePassword(id: string, dto: changePasswordDto) {
-    const dtoValidate = await validateDto(changePasswordDto, dto);
+  async changePassword(id: string, dto: ChangePasswordDto) {
+    const dtoValidate = await validateDto(ChangePasswordDto, dto);
 
     const user = await this.userRepository.findById(id);
     if (!user) {
