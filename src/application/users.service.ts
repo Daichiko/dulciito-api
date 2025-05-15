@@ -28,17 +28,17 @@ export class UserService {
   async create(dto: CreateUsuarioDto) {
     const dtoValidate = await validateDto(CreateUsuarioDto, dto);
 
-    const existingUser = await this.userRepository.findByEmail(dto.email);
+    const existingUser = await this.userRepository.findByEmail(dto.correo);
     if (existingUser) {
       throw new ApiError("El correo ingresado ya existe", 400, []);
     }
 
-    const encriptarPassword = bcrypt.hashSync(dtoValidate.password, 10);
+    const encriptarPassword = bcrypt.hashSync(dtoValidate.contraseña, 10);
 
     const sanitizedData: CreateUsuarioDto = {
       ...dtoValidate,
-      password: encriptarPassword,
-      email: dtoValidate.email.toLowerCase().trim(),
+      contraseña: encriptarPassword,
+      correo: dtoValidate.correo.toLowerCase().trim(),
     };
 
     return this.userRepository.create(sanitizedData);
@@ -66,7 +66,7 @@ export class UserService {
    *
    * @param page El número de página para la paginación.
    * @param size El número de elementos por página.
-   * @param filter Los filtros aplicados a la búsqueda (por ejemplo, "nombre" o "email").
+   * @param filter Los filtros aplicados a la búsqueda (por ejemplo, "nombre" o "correo").
    * @returns Un objeto con los usuarios y el conteo total.
    * @throws ApiError Si los parámetros de paginación no son válidos.
    */
@@ -96,9 +96,9 @@ export class UserService {
 
     const sanitizedData = { ...dtoValidate };
 
-    if (dtoValidate.email) {
+    if (dtoValidate.correo) {
       const existingEmail = await this.userRepository.findByEmail(
-        dtoValidate.email
+        dtoValidate.correo
       );
       if (existingEmail) {
         throw new ApiError(
@@ -107,7 +107,7 @@ export class UserService {
           []
         );
       }
-      sanitizedData.email = dtoValidate.email.toLowerCase().trim();
+      sanitizedData.correo = dtoValidate.correo.toLowerCase().trim();
     }
 
     return this.userRepository.update(id, dtoValidate);
@@ -122,15 +122,15 @@ export class UserService {
    */
   async login(dto: LoginDto) {
     const dtoValidate = await validateDto(LoginDto, dto);
-    const user = await this.userRepository.findByEmail(dtoValidate.email);
+    const user = await this.userRepository.findByEmail(dtoValidate.correo);
 
     if (!user) {
       throw new ApiError("El correo no se encuentra registrado", 400, []);
     }
 
     const validPassword = bcrypt.compareSync(
-      dtoValidate.password,
-      user.password
+      dtoValidate.contraseña,
+      user.contraseña
     );
 
     if (!validPassword) {
@@ -141,7 +141,7 @@ export class UserService {
 
     const token: any = jwt.sign({
       id: user.id,
-      email: user.email,
+      correo: user.correo,
       roles: roles,
     });
 
@@ -174,9 +174,9 @@ export class UserService {
       throw new ApiError("Usuario no encontrado", 404, []);
     }
 
-    const encriptarPassword = bcrypt.hashSync(dtoValidate.password, 10);
+    const encriptarPassword = bcrypt.hashSync(dtoValidate.contraseña, 10);
 
-    await this.userRepository.update(id, { password: encriptarPassword });
+    await this.userRepository.update(id, { contraseña: encriptarPassword });
 
     return { message: "Contraseña actualizada exitosamente" };
   }

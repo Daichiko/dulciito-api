@@ -1,6 +1,11 @@
 import { IUserRepository } from "../domain/repository/IUserRepository";
-import { User, UserWithoutPassword } from "domain/entity/user.entity";
+import { Usuario, UserWithoutPassword } from "domain/entity/user.entity";
 import { prisma } from "../shared/config/connectionDB";
+import {
+  CreateUsuarioDto,
+  UpdateUsuarioDto,
+  UsuarioResponseDto,
+} from "shared/dtos/usuario.dto";
 
 export class UserRepositoryPrisma implements IUserRepository {
   /**
@@ -9,11 +14,13 @@ export class UserRepositoryPrisma implements IUserRepository {
    * @param data Los datos del usuario a crear.
    * @returns El usuario creado con su información completa.
    */
-  async create(data: User): Promise<UserWithoutPassword> {
-    return await prisma.user.create({
+  async create(data: CreateUsuarioDto): Promise<UsuarioResponseDto> {
+    const usuario = await prisma.usuarios.create({
       data,
-      select: { id: true, nombre: true, email: true, fechaCreacion: true },
+      select: { id: true, nombre: true, correo: true, fechaCreacion: true },
     });
+
+    return usuario;
   }
 
   /**
@@ -22,17 +29,19 @@ export class UserRepositoryPrisma implements IUserRepository {
    * @param email El correo electrónico del usuario a buscar.
    * @returns El usuario correspondiente al correo electrónico, incluyendo los roles del usuario.
    */
-  async findByEmail(email: string): Promise<User> {
-    return await prisma.user.findUnique({
-      where: { email },
+  async findByEmail(correo: string): Promise<Usuario> {
+    const usuario = await prisma.usuarios.findUnique({
+      where: { correo },
       include: {
         UserRoles: {
           include: {
-            role: true,
+            Roles: true,
           },
         },
       },
     });
+
+    return usuario;
   }
 
   /**
@@ -64,12 +73,12 @@ export class UserRepositoryPrisma implements IUserRepository {
 
     // Recupera los datos paginados y el conteo total de usuarios con los filtros aplicados.
     const [data, count] = await Promise.all([
-      prisma.user.findMany({
+      prisma.usuarios.findMany({
         where,
         skip: (page - 1) * size,
         take: size,
       }),
-      prisma.user.count({ where }),
+      prisma.usuarios.count({ where }),
     ]);
 
     return { data, count };
@@ -81,10 +90,10 @@ export class UserRepositoryPrisma implements IUserRepository {
    * @param id El ID del usuario a buscar.
    * @returns El usuario sin la contraseña.
    */
-  async findById(id: string): Promise<UserWithoutPassword> {
-    return await prisma.user.findUnique({
+  async findById(id: string): Promise<UsuarioResponseDto> {
+    return await prisma.usuarios.findUnique({
       where: { id },
-      select: { id: true, nombre: true, email: true, fechaCreacion: true },
+      select: { id: true, nombre: true, correo: true, fechaCreacion: true },
     });
   }
 
@@ -95,10 +104,13 @@ export class UserRepositoryPrisma implements IUserRepository {
    * @param data Los datos a actualizar en el usuario.
    * @returns El usuario actualizado sin la contraseña.
    */
-  async update(id: string, data: Partial<User>): Promise<UserWithoutPassword> {
-    return await prisma.user.update({
+  async update(
+    id: string,
+    data: UpdateUsuarioDto
+  ): Promise<UsuarioResponseDto> {
+    return await prisma.usuarios.update({
       where: { id },
-      select: { id: true, nombre: true, email: true, fechaCreacion: true },
+      select: { id: true, nombre: true, correo: true, fechaCreacion: true },
       data,
     });
   }
@@ -110,6 +122,6 @@ export class UserRepositoryPrisma implements IUserRepository {
    * @returns Void, no retorna nada.
    */
   async delete(id: string): Promise<void> {
-    await await prisma.user.delete({ where: { id } });
+    await await prisma.usuarios.delete({ where: { id } });
   }
 }

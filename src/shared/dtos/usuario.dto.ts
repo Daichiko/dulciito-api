@@ -13,11 +13,11 @@ export class CreateUsuarioDto {
   nombre: string;
 
   @IsEmail({}, { message: "Debe proporcionar un correo electrónico válido" })
-  email: string;
+  correo: string;
 
   @IsString({ message: "La contraseña debe ser una cadena de texto" })
   @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
-  password: string;
+  contraseña: string;
 }
 
 export class UpdateUsuarioDto {
@@ -28,28 +28,33 @@ export class UpdateUsuarioDto {
 
   @IsOptional()
   @IsEmail({}, { message: "Debe proporcionar un correo electrónico válido" })
-  email?: string;
+  correo?: string;
+
+  @IsOptional()
+  @IsString({ message: "La contraseña debe ser una cadena de texto" })
+  @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
+  contraseña?: string;
 }
 
 export class LoginDto {
   @IsEmail({}, { message: "Debe proporcionar un correo electrónico válido" })
-  email: string;
+  correo: string;
 
   @IsString({ message: "La contraseña debe ser una cadena de texto" })
   @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
-  password: string;
+  contraseña: string;
 }
 
 export class ChangePasswordDto {
   @IsString({ message: "La contraseña debe ser una cadena de texto" })
   @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
-  password: string;
+  contraseña: string;
 }
 
 export class UsuarioResponseDto {
   @IsUUID()
   id: string;
   nombre: string;
-  email: string;
+  correo: string;
   fechaCreacion: Date;
 }

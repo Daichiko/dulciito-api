@@ -1,17 +1,22 @@
-import { User, UserWithoutPassword } from "../entity/user.entity";
+import {
+  CreateUsuarioDto,
+  UpdateUsuarioDto,
+  UsuarioResponseDto,
+} from "shared/dtos/usuario.dto";
+import { Usuario } from "../entity/user.entity";
 
 export interface IUserRepository {
-  create(data: Partial<User>): Promise<Partial<User>>;
-  findByEmail(email: string): Promise<User>;
-  findById(id: string): Promise<UserWithoutPassword>;
-  update(id: string, data: Partial<User>): Promise<UserWithoutPassword>;
+  create(data: CreateUsuarioDto): Promise<UsuarioResponseDto>;
+  findByEmail(email: string): Promise<Usuario>;
+  findById(id: string): Promise<UsuarioResponseDto>;
+  update(id: string, data: UpdateUsuarioDto): Promise<UsuarioResponseDto>;
   delete(id: string): Promise<void>;
   table(
     page: number,
     size: number,
     filter: any
   ): Promise<{
-    data: UserWithoutPassword[];
+    data: UsuarioResponseDto[];
     count: number;
   }>;
 }

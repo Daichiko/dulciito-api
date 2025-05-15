@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { IRoleRepository } from "../domain/repository/IRoleRepository";
-import { Role } from "domain/entity/roles.entity";
-import { UsuariosRoles } from "domain/entity/usuarios-roles.entity";
+import { UsuariosRoles } from "../domain/entity/usuarios-roles.entity";
+import { CreateRoleDto, RoleResponseDto } from "shared/dtos/roles.dto";
 
 const prisma = new PrismaClient();
 
@@ -12,8 +12,8 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param data Los datos del rol a crear.
    * @returns El rol creado.
    */
-  async create(data: Role): Promise<Role> {
-    return await prisma.role.create({ data });
+  async create(data: CreateRoleDto): Promise<RoleResponseDto> {
+    return await prisma.roles.create({ data });
   }
 
   /**
@@ -22,8 +22,8 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param id El ID del rol a buscar.
    * @returns El rol encontrado o `null` si no existe.
    */
-  async findById(id: string) {
-    return await prisma.role.findUnique({
+  async findById(id: string): Promise<RoleResponseDto> {
+    return await prisma.roles.findUnique({
       where: { id },
     });
   }
@@ -34,35 +34,35 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @param name El nombre del rol a buscar.
    * @returns El rol encontrado o `null` si no existe.
    */
-  async findByName(name: string) {
-    return await prisma.role.findUnique({
+  async findByName(name: string): Promise<RoleResponseDto> {
+    return await prisma.roles.findUnique({
       where: { name },
     });
   }
 
   /**
-   * Obtiene todos los roles existentes en la base de datos.
+   * Obtiene todos los Roles existentes en la base de datos.
    *
-   * @returns Una lista de todos los roles.
+   * @returns Una lista de todos los Roles.
    */
   async findAll() {
-    return await prisma.role.findMany();
+    return await prisma.roles.findMany();
   }
 
   /**
-   * Obtiene una lista de roles con paginación y filtrado.
+   * Obtiene una lista de Roles con paginación y filtrado.
    *
    * @param page El número de página para la paginación.
    * @param size La cantidad de elementos por página.
    * @param filter Los filtros para aplicar en la búsqueda (por ejemplo, nombre o descripción).
-   * @returns Un objeto que contiene la lista de roles y el total de registros.
+   * @returns Un objeto que contiene la lista de Roles y el total de registros.
    */
   async table(
     page: number,
     size: number,
     filter: any
   ): Promise<{
-    data: Role[];
+    data: RoleResponseDto[];
     count: number;
   }> {
     const validFilters = ["name", "description"];
@@ -78,12 +78,12 @@ export class RoleRepositoryPrisma implements IRoleRepository {
     }
 
     const [data, count] = await Promise.all([
-      prisma.role.findMany({
+      prisma.roles.findMany({
         where,
         skip: (page - 1) * size,
         take: size,
       }),
-      prisma.role.count({ where }),
+      prisma.roles.count({ where }),
     ]);
 
     return { data, count };
@@ -96,9 +96,9 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @returns El registro de la relación entre el usuario y el rol.
    */
   async assignRoleToUser(data: UsuariosRoles): Promise<UsuariosRoles> {
-    return await prisma.UsuariosRoless.create({
+    return await prisma.usuariosRoles.create({
       data: {
-        userId: data.usuarioId,
+        usuarioId: data.usuarioId,
         roleId: data.roleId,
       },
     });
@@ -111,10 +111,10 @@ export class RoleRepositoryPrisma implements IRoleRepository {
    * @returns Una promesa que se resuelve cuando el rol se elimina.
    */
   async removeRoleFromUser(data: UsuariosRoles): Promise<void> {
-    await prisma.UsuariosRoless.delete({
+    await prisma.usuariosRoles.delete({
       where: {
-        userId_roleId: {
-          userId: data.usuarioId,
+        usuarioId_roleId: {
+          usuarioId: data.usuarioId,
           roleId: data.roleId,
         },
       },
@@ -122,51 +122,54 @@ export class RoleRepositoryPrisma implements IRoleRepository {
   }
 
   /**
-   * Obtiene todos los roles asignados a un usuario.
+   * Obtiene todos los Roles asignados a un usuario.
    *
-   * @param userId El ID del usuario para consultar sus roles.
-   * @returns Una lista de roles asignados al usuario.
+   * @param usuarioId El ID del usuario para consultar sus Roles.
+   * @returns Una lista de Roles asignados al usuario.
    */
-  async findRolesByUsuarioId(userId: string): Promise<Role[]> {
-    const UsuariosRoless = await prisma.UsuariosRoless.findMany({
-      where: { userId },
+  async findRolesByUsuarioId(usuarioId: string): Promise<RoleResponseDto[]> {
+    const usuariosRoles = await prisma.usuariosRoles.findMany({
+      where: { usuarioId },
       include: {
-        role: true,
+        Roles: true,
       },
     });
 
-    return UsuariosRoless.map((r) => r.role);
+    return usuariosRoles.map((r) => r.Roles);
   }
 
   /**
    * Verifica si un usuario tiene un rol específico.
    *
-   * @param userId El ID del usuario.
+   * @param usuarioId El ID del usuario.
    * @param roleId El ID del rol a verificar.
    * @returns El registro de la relación de usuario y rol, o `null` si no existe.
    */
-  async findRolesByIds(userId: string, roleId: string): Promise<UsuariosRoles> {
-    const UsuariosRoless = await prisma.UsuariosRoless.findUnique({
-      where: { userId_roleId: { userId, roleId } },
+  async findRolesByIds(
+    usuarioId: string,
+    roleId: string
+  ): Promise<UsuariosRoles> {
+    const usuariosRoles = await prisma.usuariosRoles.findUnique({
+      where: { usuarioId_roleId: { usuarioId, roleId } },
     });
 
-    return UsuariosRoless;
+    return usuariosRoles;
   }
 
   /**
-   * Obtiene los nombres de los roles asignados a un usuario.
+   * Obtiene los nombres de los Roles asignados a un usuario.
    *
-   * @param userId El ID del usuario para consultar los nombres de sus roles.
-   * @returns Una lista de los nombres de los roles asignados al usuario.
+   * @param usuarioId El ID del usuario para consultar los nombres de sus Roles.
+   * @returns Una lista de los nombres de los Roles asignados al usuario.
    */
-  async findRoleNamesByUsuarioId(userId: string): Promise<string[]> {
-    const UsuariosRoless = await prisma.UsuariosRoless.findMany({
-      where: { userId },
+  async findRoleNamesByUsuarioId(usuarioId: string): Promise<string[]> {
+    const usuariosRoles = await prisma.usuariosRoles.findMany({
+      where: { usuarioId },
       include: {
-        role: true,
+        Roles: true,
       },
     });
 
-    return UsuariosRoless.map((r) => r.role.name);
+    return usuariosRoles.map((r) => r.Roles.name);
   }
 }
