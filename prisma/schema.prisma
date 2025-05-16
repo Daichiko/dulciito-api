@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,6 +18,18 @@ enum OrderStatus {
   PROCESANDO
   ENVIADO
   RECIBIDO
+}
+
+enum TipoMovimiento {
+  INGRESO
+  EGRESO
+}
+
+enum TipoEventoExcepcional {
+  TRASPASO_INGRESO
+  TRASPASO_EGRESO
+  ABONO_EXTERNO
+  // ... otros tipos de eventos excepcionales
 }
 
 model Articulos {
@@ -58,9 +67,8 @@ model Recetas {
 }
 
 model Pedidos_platos {
-  plato   Platos @relation(fields: [platoId], references: [id])
-  platoId String
-
+  plato    Platos  @relation(fields: [platoId], references: [id])
+  platoId  String
   pedido   Pedidos @relation(fields: [pedidoId], references: [id])
   pedidoId String
 
@@ -75,17 +83,17 @@ model Pedidos {
   cliente     Clientes         @relation(fields: [clienteId], references: [id])
   clienteId   String
   fechaPedido DateTime         @default(now())
+  movimientos Movimiento[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 }
 
 model Clientes {
-  id        String   @id @default(uuid())
-  nombre    String   @unique
-  correo    String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id                String    @id @default(uuid())
+  nombre            String    @unique
+  correo            String    @unique
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   pedidosIngresados Pedidos[]
 
   @@index([correo])
@@ -99,6 +107,7 @@ model Usuarios {
   fechaCreacion     DateTime        @default(now())
   UserRoles         UsuariosRoles[]
   pedidosIngresados Pedidos[]
+  cuentas           Cuenta[]
 
   @@index([correo])
 }
@@ -113,9 +122,48 @@ model Roles {
 model UsuariosRoles {
   usuarios  Usuarios @relation(fields: [usuarioId], references: [id])
   usuarioId String
-
-  Roles  Roles  @relation(fields: [roleId], references: [id])
-  roleId String
+  Roles     Roles    @relation(fields: [roleId], references: [id])
+  roleId    String
 
   @@id([usuarioId, roleId])
+}
+
+model Cuenta {
+  id            String       @id @default(uuid())
+  usuario       Usuarios     @relation(fields: [usuarioId], references: [id])
+  usuarioId     String
+  numeroCuenta  String       @unique
+  tipoCuenta    String
+  fechaCreacion DateTime     @default(now())
+  saldo         Decimal      @default(0)
+  moneda        String       @default("VES")
+  movimientos   Movimiento[]
+}
+
+model Movimiento {
+  id                  String             @id @default(uuid())
+  cuenta              Cuenta             @relation(fields: [cuentaId], references: [id])
+  cuentaId            String
+  tipoMovimiento      TipoMovimiento
+  monto               Decimal
+  tasa                Decimal
+  fechaMovimiento     DateTime           @default(now())
+  descripcion         String?
+  pedido              Pedidos?           @relation(fields: [pedidoId], references: [id])
+  pedidoId            String?            @unique
+  eventoExcepcional   EventoExcepcional? @relation(fields: [eventoExcepcionalId], references: [id])
+  eventoExcepcionalId String?            @unique
+
+  @@index([cuentaId])
+  @@index([pedidoId])
+  @@index([eventoExcepcionalId])
+}
+
+model EventoExcepcional {
+  id          String                @id @default(uuid())
+  tipoEvento  TipoEventoExcepcional
+  fechaEvento DateTime              @default(now())
+  monto       Decimal
+  descripcion String?
+  movimiento  Movimiento[]
 }
