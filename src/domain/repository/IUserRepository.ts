@@ -3,7 +3,7 @@ import {
   UpdateUsuarioDto,
   UsuarioResponseDto,
 } from "shared/dtos/usuario.dto";
-import { Usuario } from "../entity/user.entity";
+import { Usuario } from "../entity/usuario.entity";
 
 export interface IUserRepository {
   create(data: CreateUsuarioDto): Promise<UsuarioResponseDto>;

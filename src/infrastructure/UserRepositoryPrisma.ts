@@ -1,5 +1,5 @@
 import { IUserRepository } from "../domain/repository/IUserRepository";
-import { Usuario, UserWithoutPassword } from "domain/entity/user.entity";
+import { Usuario, UserWithoutPassword } from "domain/entity/usuario.entity";
 import { prisma } from "../shared/config/connectionDB";
 import {
   CreateUsuarioDto,

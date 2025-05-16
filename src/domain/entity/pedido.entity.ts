@@ -1,5 +1,5 @@
 import { PedidoPlato } from "./pedido-plato.entity";
-import { User } from "./user.entity";
+import { User } from "./usuario.entity";
 import { Cliente } from "./cliente.entity";
 
 export enum OrderStatus {

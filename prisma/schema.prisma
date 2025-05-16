@@ -26,10 +26,8 @@ enum TipoMovimiento {
 }
 
 enum TipoEventoExcepcional {
-  TRASPASO_INGRESO
-  TRASPASO_EGRESO
-  ABONO_EXTERNO
-  // ... otros tipos de eventos excepcionales
+  TRASPASO
+  PRESTAMO
 }
 
 model Articulos {
